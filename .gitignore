@@ -1,0 +1,14 @@
+# Ignore all these files/filetypes
+*.md
+*.txt
+.env
+*.log
+__pycache__/
+*.py[cod]
+venv/
+*.json
+summaries/
+*.pdf
+
+# But don't ignore these files
+!README.md
