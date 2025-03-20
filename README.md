@@ -26,19 +26,21 @@ Lease Analysis Tool is a Python-based project designed to parse, process, and an
 ## Usage
 Follow these steps to use the Lease Analysis Tool:
 1. Ensure that your lease files are saved in the `data/leases` folder.
-2. Review and, if necessary, update the configuration settings in `src/config.py` to match your environment or preferences.
-3. Run the project by executing the main script from the root directory:
+2. Ensure that you have at least one prompt file in the `data/prompts` folder.
+   - A corresponding folder will be created in the `output` directory for each prompt.
+   - the prompt file should contain the exact text to send to the API
+3. Review and, if necessary, update the configuration settings in `src/config.py` to match your environment or preferences.
+4. Run the project by executing the main script from the root directory:
    ```
    python src/main.py
    ```
    This will trigger the parsing and processing of the lease data.
-4. Monitor progress and check for any errors via the log files stored in the `logs/` directory.
-5. Once processing is complete, review the generated reports located in the following directories:
+5. Monitor progress and check for any errors via the log files stored in the `logs/` directory.
+6. Once processing is complete, review the generated reports located in the following directories:
    - `output/aggregate/` – Aggregated data reports.
-   - `output/paid-up/` – Paid-up lease data reports.
    - `output/processed/` – Processed lease details.
    - `output/summaries/` – Summary reports.
-6. For troubleshooting or further customization, consult the documentation comments within the source code in `src/`.
+7. For troubleshooting or further customization, consult the documentation comments within the source code in `src/`.
 
 ## Project Structure
 - **data/** – Contains input lease documents. Lease files are stored in `data/leases`.
