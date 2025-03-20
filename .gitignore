@@ -12,3 +12,4 @@ summaries/
 
 # But don't ignore these files
 !README.md
+!requirements.txt

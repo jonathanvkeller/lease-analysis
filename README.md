@@ -22,7 +22,12 @@ Lease Analysis Tool is a Python-based project designed to parse, process, and an
    ```
    pip install -r requirements.txt
    ```
-
+   
+5. Create a .env file in the project root and add your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your_openai_api_key_here
+   ```
+   
 ## Usage
 Follow these steps to use the Lease Analysis Tool:
 1. Ensure that your lease files are saved in the `data/leases` folder.
