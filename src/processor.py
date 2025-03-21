@@ -1,7 +1,6 @@
 # processor.py
 import os
 import logging
-import time
 import json
 import shutil
 from datetime import datetime
@@ -304,19 +303,24 @@ class LeaseProcessor:
             },
             "errors": self.stats["error_details"] if self.stats["errors"] > 0 else []
         }
-        
         # Save to JSON file
-        report_path = os.path.join(self.output_folder, "summaries", f"summary_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+        report_path = os.path.join(
+            self.output_folder,
+            "summaries",
+            f"summary_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        )
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
         with open(report_path, 'w', encoding='utf-8') as f:
             json.dump(report, f, indent=2)
-        
         # Also create a markdown version
-        md_report_path = os.path.join(self.output_folder, "summaries", f"summary_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md")
-        
+        md_report_path = os.path.join(
+            self.output_folder,
+            "summaries",
+            f"summary_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+        )
         with open(md_report_path, 'w', encoding='utf-8') as f:
             f.write("# Lease Analysis Summary Report\n\n")
             f.write(f"Generated: {report['timestamp']}\n\n")
-            
             f.write("## Execution Statistics\n\n")
             f.write(f"- Total lease documents: {report['execution_stats']['total_leases']}\n")
             f.write(f"- Total prompts: {report['execution_stats']['total_prompts']}\n")
@@ -325,13 +329,11 @@ class LeaseProcessor:
             f.write(f"- Successful: {report['execution_stats']['successful']}\n")
             f.write(f"- Errors: {report['execution_stats']['errors']}\n")
             f.write(f"- Total processing time: {report['execution_stats']['total_processing_time']}\n\n")
-            
             f.write("## Usage Statistics\n\n")
             f.write(f"- Total input tokens: {report['usage_stats']['total_tokens_input']:,}\n")
             f.write(f"- Total output tokens: {report['usage_stats']['total_tokens_output']:,}\n")
             f.write(f"- Total tokens: {report['usage_stats']['total_tokens']:,}\n")
             f.write(f"- Estimated cost: {report['usage_stats']['estimated_cost']}\n\n")
-            
             if report['errors']:
                 f.write("## Errors\n\n")
                 for i, error in enumerate(report['errors']):
@@ -339,7 +341,5 @@ class LeaseProcessor:
                     f.write(f"- Lease file: `{error['lease']}`\n")
                     f.write(f"- Prompt file: `{error['prompt']}`\n")
                     f.write(f"- Error message: `{error['error']}`\n\n")
-        
         logging.info(f"Generated summary report: {md_report_path}")
-        
         return report
