@@ -7,6 +7,7 @@ from datetime import datetime
 from openai import OpenAI
 from . import config
 from .utils import is_pdf, convert_pdf_to_images
+from .parser import main as aggregate_main
 import base64
 
 class LeaseProcessor:
@@ -54,7 +55,7 @@ class LeaseProcessor:
     def get_prompt_files(self):
         """Get all prompt files from the prompt folder."""
         return [f for f in os.listdir(self.prompt_folder) 
-                if f.lower().endswith(('.txt', '.md'))]
+                if f.lower().endswith(('.txt', '.md')) and f != 'prompt-template.md']
     
     def read_prompt_file(self, file_name):
         """
@@ -236,10 +237,7 @@ class LeaseProcessor:
             return
         
         logging.info(f"Found {len(lease_files)} lease files and {len(prompt_files)} prompt files")
-        
-        total_combinations = len(lease_files) * len(prompt_files)
-        processed = 0
-        
+                
         for lease_file in lease_files:
             lease_name = os.path.splitext(lease_file)[0]
             lease_success = True
@@ -274,6 +272,10 @@ class LeaseProcessor:
             if lease_success:
                 self.move_to_processed(lease_file)
                 logging.info(f"Completed processing for {lease_file}, moved to processed folder")
+        
+        # Run aggregation after processing
+        aggregate_main()
+        logging.info("Aggregation completed.")
     
     def generate_report(self):
         """Generate a summary report of the processing."""

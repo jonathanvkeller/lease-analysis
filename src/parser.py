@@ -37,8 +37,8 @@ def aggregate_clause_folder(clause_folder_path, aggregate_output_path):
             for i in range(0, len(parts), 2):
                 header = parts[i].strip()
                 body = parts[i+1].strip() if i+1 < len(parts) else ""
-                # Skip the STATUS section
-                if header.upper() == "## STATUS":
+                # Skip the STATUS and ASSESSMENT sections
+                if header.upper() in ["## STATUS", "## ASSESSMENT"]:
                     continue
                 # Initialize list for the section if not already present
                 if header not in sections:
@@ -47,14 +47,35 @@ def aggregate_clause_folder(clause_folder_path, aggregate_output_path):
                 if body:
                     sections[header].append(body)
 
-    # Build aggregated markdown content
+    # Build aggregated markdown content in lowercase and sorted by section
     output_lines = []
-    for header, items in sections.items():
-        output_lines.append(header)
+    for header in sorted(sections.keys(), key=lambda h: h[3:].strip().lower() if h.startswith("## ") else h.lower()):
+        lower_header = header.lower()
+        output_lines.append(lower_header)
         output_lines.append("")  # blank line
-        for item in items:
-            # Append each aggregated item as an unordered list bullet
-            output_lines.append(f"- {item}")
+        if header.lower() == "## chunk size":
+            # Calculate average chunk size
+            total_tokens = 0
+            total_overlap = 0
+            count = 0
+            for item in sections[header]:
+                match = re.search(r'(\d+)\s+tokens\s+with\s+a\s+(\d+)-token\s+overlap', item)
+                if match:
+                    total_tokens += int(match.group(1))
+                    total_overlap += int(match.group(2))
+                    count += 1
+            if count > 0:
+                avg_tokens = total_tokens // count
+                avg_overlap = total_overlap // count
+                output_lines.append(f"recommend a chunk size of {avg_tokens} tokens with a {avg_overlap}-token overlap")
+        else:
+            for item in sorted(sections[header], key=lambda i: i.lower()):
+                sanitized_item = item.lower().strip()
+                sanitized_item = re.sub(r'^[-\s]+', '', sanitized_item)
+                sanitized_item = re.sub(r'^"+|"+$', '', sanitized_item).strip()
+                if "n/a" in sanitized_item:
+                    continue
+                output_lines.append(f"- {sanitized_item}")
         output_lines.append("")  # blank line after each section
 
     aggregated_content = "\n".join(output_lines)
@@ -74,6 +95,8 @@ def aggregate_clause_folder(clause_folder_path, aggregate_output_path):
 def main():
     base_output = os.path.join("output")
     aggregate_output = os.path.join(base_output, "aggregate")
+    processed_output = os.path.join(base_output, "processed")
+    os.makedirs(processed_output, exist_ok=True)
     
     # List clause folders: all directories in "output" excluding "processed", "summaries", and "aggregate"
     for entry in os.listdir(base_output):
